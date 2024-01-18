@@ -5,8 +5,12 @@ services:
     image: sleek-airflow:latest
 
     volumes:
-      - ./airflow:/opt/airflow
+    - ./airflow:/opt/airflow
+    # - ./dags:/opt/airflow/dags
+    # - ./logs:/opt/airflow/logs
+    # - ./plugins:/opt/airflow/plugins
 
+    
     ports:
       - "8080:8080"
 
