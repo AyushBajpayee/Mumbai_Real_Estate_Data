@@ -12,7 +12,7 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
 from time import sleep
 import pandas as pd
-import numpy as np
+from tqdm import tqdm
 warnings.filterwarnings('ignore')
 
 def getRecordsViaWebDriver():
@@ -68,12 +68,16 @@ def getRecordsViaWebDriver():
 
     records_raw = pd.DataFrame(columns=['अनु क्र.','दस्त क्र.','दस्त प्रकार','दू. नि. कार्यालय','वर्ष','लिहून देणार','लिहून घेणार','इतर माहीती','सूची क्र. २'])
 
-    for index, table in enumerate(driver.find_elements(by=By.ID, value='tbdata')):
+    records_raw = pd.DataFrame(columns=['अनु क्र.','दस्त क्र.','दस्त प्रकार','दू. नि. कार्यालय','वर्ष','लिहून देणार','लिहून घेणार','इतर माहीती','सूची क्र. २'])
+
+    print('Data Loading...')
+    for index, table in enumerate(tqdm(driver.find_elements(by=By.ID, value='tbdata'))):
         data = [item.text if item.text != 'सूची क्र. २' else item.find_element(by=By.TAG_NAME,value='a').get_attribute('href') for item in table.find_elements(by=By.XPATH, value=".//*[self::td or self::th]")]
         records_raw.loc[len(records_raw)] = data
         # print(data)
-        print(f'{index} Row Scraped')
+        # print(f'{index} Row appended',)
 
+    print('Finished!')
     return records_raw
 
 def dfToSql(df,table_name):
