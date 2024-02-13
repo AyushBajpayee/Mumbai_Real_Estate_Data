@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from tqdm import tqdm
 from time import sleep
 import warnings
+import psycopg2
 warnings.filterwarnings('ignore')
 
 #selenium webdriver
@@ -74,15 +75,34 @@ def customScraper():
 #MAIN
 # Insert Scraped Raw Data in postgres
 db_user = 'postgres'
-db_password = 'Sunrise12345'
+db_password = 'root'
 db_host = '127.0.0.1'
 db_port = '5432'
-db_name = 'propReturns'
+db_name = 'propreturns'
 table_name = 'record_details_raw'
-engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+
+conn = psycopg2.connect(
+   database="postgres", user=db_user, password=db_password, host=db_host, port= db_port
+)
+conn.autocommit = True
+cursor = conn.cursor()
 
 records_raw = customScraper()
-records_raw.to_sql(table_name, engine, if_exists='replace', index=True)
+createDbQuery = f'CREATE DATABASE {db_name}'
+
+try:
+    cursor.execute(createDbQuery)
+    print(f'DATABASE {db_name} created!')
+    conn.close()
+
+except Exception as e:
+    if f'database "{db_name}" already exists' in str(e).split('\n'):    
+        print(f'{db_name.lower()} was already present, skipping creation')
+        pass
+
+engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+
+records_raw.to_sql(table_name, engine, if_exists='replace', index=False)
 
 print(f"{len(records_raw)} DataFrame has been inserted into the '{table_name}' table.")
 print('FINISHED!')
