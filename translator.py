@@ -70,3 +70,5 @@ spark_df.select("*").write.format("jdbc")\
     .option("dbtable", table_name_sink) \
     .option("user", username) \
     .option("password", password).save()
+
+print('Finished..... Table Sinked in PostgresDB!')
