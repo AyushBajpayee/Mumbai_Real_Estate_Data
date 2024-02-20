@@ -1,0 +1,5 @@
+host='localhost'
+port='5432'
+db_name='propreturns'
+user='postgres'
+password='root'
