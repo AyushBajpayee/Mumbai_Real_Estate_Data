@@ -10,8 +10,7 @@ from time import sleep
 import json
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka import Producer
-import config
-from utils.customKafka import delivery_report
+import utils.config as config
 
 def ScrapeSinkPostgresDB(driver):
     print('Sink Selected: postgresDB')

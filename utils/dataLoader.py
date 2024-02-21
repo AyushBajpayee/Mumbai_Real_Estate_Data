@@ -1,20 +1,18 @@
 import pandas as pd
 import psycopg2
-import config
+import utils.config as config
 import json
 from confluent_kafka import Producer
-from customKafka import delivery_report
 
 print('Data Loader Object Created!')
 class dataLoader:
-    def __init__(self, something):
+    def __init__(self):
         self.host = config.host
         self.port = config.port
         self.db_name = config.db_name
         self.user= config.user
         self.password = config.password
-        self.something = something
-
+        
     def postgresToPandas(self, table_name) -> pd.DataFrame:
         conn = psycopg2.connect(dbname=self.db_name, user=self.user, password=self.password, host=self.host, port=self.port)
         query = f"SELECT * FROM {table_name}"
@@ -49,5 +47,3 @@ class dataLoader:
         producerScrapper.flush()
         print('Pushed everything to kafka topic')
     
-    def printSomething(self):
-        print(self.something)
