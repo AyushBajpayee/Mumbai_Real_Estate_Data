@@ -10,12 +10,8 @@ from time import sleep
 import json
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka import Producer
-
-def delivery_report(errmsg, msg):
-	if errmsg is not None:
-		print(f"Delivery failed for Message: {msg.key()} : {errmsg}")
-		return
-	print(f'Message: {msg.key()} successfully produced to Topic: {msg.topic()} Partition: [{msg.partition()}] at offset {msg.offset()}')
+import config
+from utils.customKafka import delivery_report
 
 def ScrapeSinkPostgresDB(driver):
     print('Sink Selected: postgresDB')
@@ -25,11 +21,11 @@ def ScrapeSinkPostgresDB(driver):
         records_raw.loc[len(records_raw)] = data
 
     print('Finished Scraping!')
-    db_user = 'postgres'
-    db_password = 'root'
-    db_host = '127.0.0.1'
-    db_port = '5432'
-    db_name = 'propreturns'
+    db_user = config.user
+    db_password = config.password
+    db_host = config.host
+    db_port = config.port
+    db_name = config.db_name
 
     engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
     table_name = 'record_details_raw'

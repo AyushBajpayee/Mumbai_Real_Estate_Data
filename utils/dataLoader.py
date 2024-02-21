@@ -1,15 +1,19 @@
 import pandas as pd
-import os
 import psycopg2
-import credentials
+import config
+import json
+from confluent_kafka import Producer
+from customKafka import delivery_report
 
+print('Data Loader Object Created!')
 class dataLoader:
-    def __init__(self):
-        self.host = credentials.host
-        self.port = credentials.port
-        self.db_name = credentials.db_name
-        self.user= credentials.user
-        self.password = credentials.password
+    def __init__(self, something):
+        self.host = config.host
+        self.port = config.port
+        self.db_name = config.db_name
+        self.user= config.user
+        self.password = config.password
+        self.something = something
 
     def postgresToPandas(self, table_name) -> pd.DataFrame:
         conn = psycopg2.connect(dbname=self.db_name, user=self.user, password=self.password, host=self.host, port=self.port)
@@ -30,7 +34,20 @@ class dataLoader:
             .jdbc(url=jdbc_url, table=table_name, properties=connection_properties)
 
         return spark_df
-
     
+    def pandasToKafkaTopic(self, df, topic_name):
+        conf = {
+            'bootstrap.servers':'localhost:9092'
+        }
+        producerScrapper = Producer(conf)
+        for index, row in df.iterrows():
+            temp_dict = {}
+            for column in df.columns:
+                temp_dict[column] = row[column]    
+            producerScrapper.produce(topic=topic_name, key=temp_dict['अनु क्र.'], value=json.dumps(temp_dict).encode(), on_delivery=delivery_report)
 
-    print('Data Loader Object Created!')
+        producerScrapper.flush()
+        print('Pushed everything to kafka topic')
+    
+    def printSomething(self):
+        print(self.something)
